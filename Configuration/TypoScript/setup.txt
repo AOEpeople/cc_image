@@ -17,7 +17,7 @@ plugin.tx_ccimage {
 	}
 }
 
-[compatVersion = < 10.4.0]
+[compatVersion("10.4.0")]
 	plugin.tx_ccimage {
 		view {
 			templateRootPaths {
@@ -44,7 +44,7 @@ lib.contentElement {
 		2 = EXT:cc_image/Resources/Private/Fluid/Layouts/
 	}
 }
-[compatVersion = < 10.4.0]
+[compatVersion("10.4.0")]
 	lib.contentElement {
 		templateRootPaths {
 			2 = EXT:cc_image/Resources/Private/Legacy/Fluid/Templates/
