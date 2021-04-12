@@ -112,7 +112,10 @@ class InlineSvgViewHelper extends AbstractTagBasedViewHelper
 		if ($this->arguments['class']) {
 			$svg = str_replace('<svg', '<svg class="'. $this->arguments['class'] .'"', $svg);
 		}
-
-		return $svg;
+		
+		$matches = [];
+		preg_match('/(<svg.*\/svg>)/is', $svg, $matches);
+		
+		return trim(preg_replace('/\\>\\s+\\</', '><',$matches[0]));
 	}
 }
