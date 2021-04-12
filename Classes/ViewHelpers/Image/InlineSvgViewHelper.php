@@ -107,6 +107,12 @@ class InlineSvgViewHelper extends AbstractTagBasedViewHelper
 			throw new Exception('Mimetype of image '.$image->getPublicUrl().' is not image/svg+xml but: '.$image->getMimeType(), 1593687938);
 		}
 		
-		return $image->getContents();
+		$svg = $image->getContents();
+
+		if ($this->arguments['class']) {
+			$svg = str_replace('<svg', '<svg class="'. $this->arguments['class'] .'"', $svg);
+		}
+
+		return $svg;
 	}
 }
