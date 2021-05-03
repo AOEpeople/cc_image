@@ -157,6 +157,10 @@ class ImageViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\Uri\ImageViewHelper
                 $processingInstructions['fileExtension'] = $arguments['fileExtension'];
                 $jpegQuality = $GLOBALS['TYPO3_CONF_VARS']['GFX']['jpg_quality'];
                 if ($jpegQuality) $processingInstructions['additionalParameters'] = '-quality ' . $jpegQuality;
+
+                if ($arguments['fileExtension'] === 'webp') {
+                    $processingInstructions['additionalParameters'] = '-quality 90';
+                }
             }
 
             $processedImage = $imageService->applyProcessingInstructions($image, $processingInstructions);
