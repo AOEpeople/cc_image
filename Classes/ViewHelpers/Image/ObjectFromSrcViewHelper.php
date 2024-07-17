@@ -27,6 +27,7 @@ namespace CoelnConcept\CcImage\ViewHelpers\Image;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException;
 use Exception;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class ObjectFromSrcViewHelper
@@ -54,11 +55,11 @@ class ObjectFromSrcViewHelper extends AbstractViewHelper
 	protected $imageService;
 
 	/**
-	 * @param \TYPO3\CMS\Extbase\Service\ImageService $imageService
+	 * constructor
 	 */
-	public function injectImageService(\TYPO3\CMS\Extbase\Service\ImageService $imageService)
+	public function __construct()
 	{
-		$this->imageService = $imageService;
+		$this->imageService = GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Service\ImageService::class);
 	}
 
 	/**
@@ -78,8 +79,8 @@ class ObjectFromSrcViewHelper extends AbstractViewHelper
 	 * @return \TYPO3\CMS\Core\Resource\FileInterface image object
 	 */
 	public function render() {
-		if (!$this->arguments['src']) $this->arguments['src'] = '';
-		if (!$this->arguments['image']) $this->arguments['image'] = null;
+		$this->arguments['src'] = $this->arguments['src'] ?? '';
+		$this->arguments['image'] = $this->arguments['image'] ?? null;
 		
 		if (($this->arguments['src'] === '' && $this->arguments['image'] === null) || ($this->arguments['src'] !== '' && $this->arguments['image'] !== null)) {
 			throw new Exception('You must either specify a string src or a File object.', 1460976233);

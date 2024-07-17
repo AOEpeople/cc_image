@@ -6,6 +6,16 @@
 Change log
 ==========
 
+Version 1.3.0
+-------------
+
+Support for TYPO3 12.4. and PHP 8
+
+Version 1.2.0
+-------------
+
+Support for TYPO3 11.5.
+
 Version 1.1.1
 -------------
 

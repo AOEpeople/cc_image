@@ -27,6 +27,7 @@ namespace CoelnConcept\CcImage\ViewHelpers\Image;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractTagBasedViewHelper;
 use TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException;
 use Exception;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class InlineSvgViewHelper
@@ -58,11 +59,12 @@ class InlineSvgViewHelper extends AbstractTagBasedViewHelper
 	protected $imageService;
 
 	/**
-	 * @param \TYPO3\CMS\Extbase\Service\ImageService $imageService
+	 * constuctor
 	 */
-	public function injectImageService(\TYPO3\CMS\Extbase\Service\ImageService $imageService)
+	public function __construct()
 	{
-		$this->imageService = $imageService;
+		parent::__construct();
+		$this->imageService = GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Service\ImageService::class);
 	}
 
 	/**
@@ -83,8 +85,11 @@ class InlineSvgViewHelper extends AbstractTagBasedViewHelper
 	 * @return string Rendered inline svg
 	 */
 	public function render() {
-		if (($this->arguments['src'] === null && $this->arguments['image'] === null) || ($this->arguments['src'] !== null && $this->arguments['image'] !== null)) {
-			throw new Exception('You must either specify a string src or a File object.', 1382284106);
+		$this->arguments['src'] = $this->arguments['src'] ?? '';
+		$this->arguments['image'] = $this->arguments['image'] ?? null;
+		
+		if (($this->arguments['src'] === '' && $this->arguments['image'] === null) || ($this->arguments['src'] !== '' && $this->arguments['image'] !== null)) {
+			throw new Exception('You must either specify a string src or a File object.', 1460976233);
 		}
 		
 		try {
@@ -108,10 +113,6 @@ class InlineSvgViewHelper extends AbstractTagBasedViewHelper
 		}
 		
 		$svg = $image->getContents();
-
-		if ($this->arguments['class']) {
-			$svg = str_replace('<svg', '<svg class="'. $this->arguments['class'] .'"', $svg);
-		}
 		
 		$matches = [];
 		preg_match('/(<svg.*\/svg>)/is', $svg, $matches);

@@ -25,7 +25,7 @@
 			</f:alias>
 		</f:for>
 	</f:if>
-	<f:image image="{image}" src="{src}" width="{width}" height="{height}" maxWidth="{maxWidth}" maxHeight="{maxHeight}" alt="{alt}" title="{title}" class="{class}" additionalAttributes="{additionalAttributes}" loading="{settings.media.lazyLoading}" />
+	<f:image image="{image}" src="{src}" width="{width}" height="{height}" maxWidth="{maxWidth}" maxHeight="{maxHeight}" alt="{alt}" title="{title}" class="{class}" additionalAttributes="{additionalAttributes}" loading="{f:if(condition:loading, then:loading, else:settings.media.lazyLoading)}" />
 </picture>
 </f:alias>
 </html>

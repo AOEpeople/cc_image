@@ -70,7 +70,7 @@ class ArrayNextViewHelper extends AbstractViewHelper {
 		$array = is_object($subject)?iterator_to_array($subject, true):(array)$subject;
 		$keys = array_keys($array);
 		
-		$pos = array_search($arguments['key'], $keys);
+		$pos = array_search($arguments['key']??null, $keys);
 		if ($pos === false) return null;
 		
 		if (!array_key_exists($pos+1, $keys)) return null;

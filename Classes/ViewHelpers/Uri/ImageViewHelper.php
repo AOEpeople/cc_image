@@ -26,6 +26,8 @@ namespace CoelnConcept\CcImage\ViewHelpers\Uri;
 
 use TYPO3\CMS\Core\Imaging\ImageManipulation\CropVariantCollection;
 use TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Service\ImageService;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
@@ -88,20 +90,29 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
  *
  * ``Could not get image resource for "NonExistingImage.png".``
  */
-class ImageViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\Uri\ImageViewHelper
+class ImageViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper
 {
     use CompileWithRenderStatic;
 
     /**
      * Initialize arguments
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
-        parent::initializeArguments();
-        
-        if (!version_compare(\TYPO3\CMS\Core\Utility\VersionNumberUtility::getNumericTypo3Version(),'10.4.0','>=')) {
-            $this->registerArgument('fileExtension', 'string', 'Custom file extension to use');
-        }
+        $this->registerArgument('src', 'string', 'src', false, '');
+        $this->registerArgument('treatIdAsReference', 'bool', 'given src argument is a sys_file_reference record', false, false);
+        $this->registerArgument('image', 'object', 'image');
+        $this->registerArgument('crop', 'string|bool|array', 'overrule cropping of image (setting to FALSE disables the cropping set in FileReference)');
+        $this->registerArgument('cropVariant', 'string', 'select a cropping variant, in case multiple croppings have been specified or stored in FileReference', false, 'default');
+        $this->registerArgument('fileExtension', 'string', 'Custom file extension to use');
+
+        $this->registerArgument('width', 'string', 'width of the image. This can be a numeric value representing the fixed width of the image in pixels. But you can also perform simple calculations by adding "m" or "c" to the value. See imgResource.width for possible options.');
+        $this->registerArgument('height', 'string', 'height of the image. This can be a numeric value representing the fixed height of the image in pixels. But you can also perform simple calculations by adding "m" or "c" to the value. See imgResource.width for possible options.');
+        $this->registerArgument('minWidth', 'int', 'minimum width of the image');
+        $this->registerArgument('minHeight', 'int', 'minimum height of the image');
+        $this->registerArgument('maxWidth', 'int', 'maximum width of the image');
+        $this->registerArgument('maxHeight', 'int', 'maximum height of the image');
+        $this->registerArgument('absolute', 'bool', 'Force absolute URL', false, false);
     }
 
     /**
@@ -138,6 +149,11 @@ class ImageViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\Uri\ImageViewHelper
                 $cropString = $image->getProperty('crop');
             }
 
+            // CropVariantCollection needs a string, but this VH could also receive an array
+            if (is_array($cropString)) {
+                $cropString = json_encode($cropString);
+            }
+
             $cropVariantCollection = CropVariantCollection::create((string)$cropString);
             $cropVariant = $arguments['cropVariant'] ?: 'default';
             $cropArea = $cropVariantCollection->getCropArea($cropVariant);
@@ -157,17 +173,13 @@ class ImageViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\Uri\ImageViewHelper
                 $processingInstructions['fileExtension'] = $arguments['fileExtension'];
                 $jpegQuality = $GLOBALS['TYPO3_CONF_VARS']['GFX']['jpg_quality'];
                 if ($jpegQuality) $processingInstructions['additionalParameters'] = '-quality ' . $jpegQuality;
-
-                if ($arguments['fileExtension'] === 'webp') {
-                    $processingInstructions['additionalParameters'] = '-quality 90';
-                }
             }
 
             $processedImage = $imageService->applyProcessingInstructions($image, $processingInstructions);
             $imageUri = $imageService->getImageUri($processedImage, $absolute);
             
             $pathinfo = pathinfo($imageUri);
-            if (!empty($arguments['fileExtension']) && strtolower($arguments['fileExtension']) != strtolower($pathinfo['extension'])) {
+            if (!empty($arguments['fileExtension']) && strtolower($arguments['fileExtension']) != strtolower($pathinfo['extension']??'')) {
                 return '';
             }
             
@@ -185,5 +197,10 @@ class ImageViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\Uri\ImageViewHelper
             // thrown if file storage does not exist
             throw new Exception($e->getMessage(), 1509741910, $e);
         }
+    }
+
+    protected static function getImageService(): ImageService
+    {
+        return GeneralUtility::makeInstance(ImageService::class);
     }
 }
